@@ -14,7 +14,8 @@ the ends, short in the middle, leaning outward); the "Kao na slici" preset (pinc
 - `src/fonts.ts` bundled fonts in `public/fonts`, fetched by relative URL. `src/export.ts` downloads.
 
 ## Two deploy targets, one build
-- GitHub Pages: `dist/` (workflow on push to main). Downloads use a plain `<a download>`.
+- GitHub Pages: https://vlazic.github.io/savijeni-natpis/ from public repo github.com/vlazic/savijeni-natpis
+  (published 2026-11-11). `dist/` deploys on every push to main. Downloads use a plain `<a download>`.
 - claude.ai artifact: https://claude.ai/artifact/TYvL3sXnb5FoT1ZEnkoxiF (shared: anyone with the link).
   `pnpm build` also writes `dist-artifact/artifact.html` (plugin in `vite.config.ts`). Publish with the
   Artifact tool: `file_path` `dist-artifact/artifact.html`, `url` the link above, `root` `dist`,
