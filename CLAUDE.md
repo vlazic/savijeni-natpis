@@ -15,7 +15,7 @@ the ends, short in the middle, leaning outward); the "Kao na slici" preset (pinc
 
 ## Two deploy targets, one build
 - GitHub Pages: `dist/` (workflow on push to main). Downloads use a plain `<a download>`.
-- claude.ai artifact: https://claude.ai/artifact/TYvL3sXnb5FoT1ZEnkoxiF (private, owner only).
+- claude.ai artifact: https://claude.ai/artifact/TYvL3sXnb5FoT1ZEnkoxiF (shared: anyone with the link).
   `pnpm build` also writes `dist-artifact/artifact.html` (plugin in `vite.config.ts`). Publish with the
   Artifact tool: `file_path` `dist-artifact/artifact.html`, `url` the link above, `root` `dist`,
   `files` each `fonts/*.ttf`. Omit `capabilities` on redeploy (it keeps `{downloads: true}`).
