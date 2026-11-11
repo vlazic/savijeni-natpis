@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="sr-Latn">
+<head>
+<title>Savijeni natpis</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600&display=swap">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>Savijeni natpis</h1>
+    <p>Upiši tekst, savij ga i preuzmi kao SVG ili providni PNG.</p>
+  </header>
+
+  <div class="main">
+    <section class="stage-col" aria-label="Pregled">
+      <div class="stage" id="stage" data-ground="auto" role="img" aria-label="Pregled natpisa"></div>
+      <div class="stagebar">
+        <span class="info" id="info"></span>
+        <div class="seg" role="group" aria-label="Podloga pregleda" id="ground">
+          <button type="button" data-v="auto" aria-pressed="true">Tema</button>
+          <button type="button" data-v="light" aria-pressed="false">Svetla</button>
+          <button type="button" data-v="dark" aria-pressed="false">Tamna</button>
+        </div>
+      </div>
+      <div class="stagebar">
+        <button class="btn primary" type="button" id="dlPng">Preuzmi PNG</button>
+        <button class="btn" type="button" id="dlSvg">Preuzmi SVG</button>
+        <button class="btn" type="button" id="copySvg">Kopiraj SVG kod</button>
+      </div>
+      <div class="status" id="status" aria-live="polite"></div>
+      <textarea class="copybox" id="copybox" readonly hidden aria-label="SVG kod"></textarea>
+    </section>
+
+    <aside class="panel" aria-label="Podešavanja">
+      <div class="panel-head"><span>Podešavanja</span><button class="btn small" type="button" id="reset">Vrati početno</button></div>
+
+      <details open>
+        <summary>Tekst</summary>
+        <div class="sec">
+          <textarea id="text" rows="2" spellcheck="false" aria-label="Tekst natpisa"></textarea>
+          <div class="warn" id="missing" hidden></div>
+          <label class="check"><input type="checkbox" id="upper"> Sva velika slova</label>
+          <div class="fonts" id="fonts" role="radiogroup" aria-label="Font"></div>
+          <label class="upload">Svoj font (TTF, OTF ili WOFF):
+            <input type="file" id="fontFile" accept=".ttf,.otf,.woff,font/ttf,font/otf,font/woff">
+          </label>
+          <div id="rowsText"></div>
+          <div class="inline">Poravnanje redova
+            <div class="seg" role="group" aria-label="Poravnanje" id="align">
+              <button type="button" data-v="left" aria-pressed="false">Levo</button>
+              <button type="button" data-v="center" aria-pressed="true">Centar</button>
+              <button type="button" data-v="right" aria-pressed="false">Desno</button>
+            </div>
+          </div>
+          <label class="check"><input type="checkbox" id="kerning"> Kerning iz fonta</label>
+        </div>
+      </details>
+
+      <details open>
+        <summary>Oblik</summary>
+        <div class="sec">
+          <div class="presets" id="presets"></div>
+          <div id="rowsWarp"></div>
+        </div>
+      </details>
+
+      <details open>
+        <summary>Boja</summary>
+        <div class="sec">
+          <div class="colorrow"><label for="fill">Ispuna</label><input type="color" id="fill"><input class="hex" id="fillHex" aria-label="Ispuna, hex" maxlength="7"></div>
+          <div class="swatches" id="swatches"></div>
+          <div class="sub">Prelaz u drugu boju <label class="switch"><input type="checkbox" id="gradOn"> Uključi</label></div>
+          <fieldset id="fsGrad">
+            <div class="colorrow"><label for="fill2">Druga boja</label><input type="color" id="fill2"><input class="hex" id="fill2Hex" aria-label="Druga boja, hex" maxlength="7"></div>
+            <div id="rowsGrad"></div>
+          </fieldset>
+        </div>
+      </details>
+
+      <details>
+        <summary>Kontura</summary>
+        <div class="sec">
+          <div class="sub">Obrub oko slova <label class="switch"><input type="checkbox" id="strokeOn"> Uključi</label></div>
+          <fieldset id="fsStroke">
+            <div class="colorrow"><label for="strokeColor">Boja</label><input type="color" id="strokeColor"><input class="hex" id="strokeColorHex" aria-label="Boja konture, hex" maxlength="7"></div>
+            <div id="rowsStroke"></div>
+            <div class="inline">Uglovi
+              <div class="seg" role="group" aria-label="Uglovi konture" id="strokeJoin">
+                <button type="button" data-v="round" aria-pressed="true">Zaobljeni</button>
+                <button type="button" data-v="miter" aria-pressed="false">Oštri</button>
+              </div>
+            </div>
+            <div class="inline">Položaj
+              <div class="seg" role="group" aria-label="Položaj konture" id="strokePos">
+                <button type="button" data-v="behind" aria-pressed="true">Iza slova</button>
+                <button type="button" data-v="front" aria-pressed="false">Preko slova</button>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+      </details>
+
+      <details>
+        <summary>Senka i 3D</summary>
+        <div class="sec">
+          <div class="sub">Senka <label class="switch"><input type="checkbox" id="shadowOn"> Uključi</label></div>
+          <fieldset id="fsShadow">
+            <div class="colorrow"><label for="shadowColor">Boja</label><input type="color" id="shadowColor"><input class="hex" id="shadowColorHex" aria-label="Boja senke, hex" maxlength="7"></div>
+            <div id="rowsShadow"></div>
+          </fieldset>
+          <div class="sub">3D izvlačenje <label class="switch"><input type="checkbox" id="extrudeOn"> Uključi</label></div>
+          <fieldset id="fsExtrude">
+            <div class="colorrow"><label for="extrudeColor">Boja</label><input type="color" id="extrudeColor"><input class="hex" id="extrudeColorHex" aria-label="Boja 3D strane, hex" maxlength="7"></div>
+            <div id="rowsExtrude"></div>
+          </fieldset>
+        </div>
+      </details>
+
+      <details>
+        <summary>Pozadina i izvoz</summary>
+        <div class="sec">
+          <div class="sub">Pozadina <label class="switch"><input type="checkbox" id="bgOn"> Uključi</label></div>
+          <fieldset id="fsBg">
+            <div class="colorrow"><label for="bgColor">Boja</label><input type="color" id="bgColor"><input class="hex" id="bgColorHex" aria-label="Boja pozadine, hex" maxlength="7"></div>
+          </fieldset>
+          <div id="rowsExport"></div>
+        </div>
+      </details>
+    </aside>
+  </div>
+</div>
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>
