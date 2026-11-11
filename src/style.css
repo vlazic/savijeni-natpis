@@ -1,4 +1,7 @@
-/* Layout: live preview stage is the hero (sticky on desktop), controls in a scrolling side panel; one column on phones. */
+/* Layout: on a desktop screen the page is one screen tall. Left: the preview stretches to fill the
+   height, with the everyday controls (text, font, shape) in labelled rows under it. Right: a narrow
+   panel of fine-tuning sliders that scrolls on its own. Narrow screens get one column; a short
+   desktop window keeps both and scrolls the page. */
 :root {
   --bg: #E4E7E6;
   --panel: #F4F6F5;
@@ -29,54 +32,101 @@
 }
 * { box-sizing: border-box; }
 body {
+  margin: 0;
   background: var(--bg); color: var(--ink); font: 15px/1.45 var(--ui);
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
-  padding-block: 20px 32px;
+  padding-block: 14px 24px;
 }
-.wrap { max-width: 1320px; margin: 0 auto; display: grid; gap: 18px; }
-header.top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; }
-header.top h1 { font: 2.4rem/1 var(--display); letter-spacing: .01em; margin: 0; }
+.wrap { max-width: 1440px; margin: 0 auto; display: grid; gap: 12px; }
+header.top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; }
+header.top h1 { font: 2rem/1 var(--display); letter-spacing: .01em; margin: 0; }
 header.top p { margin: 0; color: var(--muted); }
 
-.main { display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr) 380px; align-items: start; }
-@media (max-width: 880px) { .main { grid-template-columns: minmax(0, 1fr); } }
+.main { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
+.work { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 
-/* Stage */
-.stage-col { position: sticky; top: max(12px, env(safe-area-inset-top, 0px)); display: grid; gap: 12px; min-width: 0; }
-@media (max-width: 880px) { .stage-col { position: static; } }
+/* Stage. Size containment: redrawing the SVG never re-lays out the page around it. */
+.stage-wrap { position: relative; display: grid; height: min(50vh, 70vw); min-height: 200px; contain: strict; }
 .stage {
   --a: var(--chk-a); --b: var(--chk-b);
-  height: min(62vh, 600px); min-height: 260px; border: 1px solid var(--line); border-radius: 6px;
+  min-height: 0; border: 1px solid var(--line); border-radius: 6px;
   background-color: var(--b);
   background-image: conic-gradient(var(--a) 25%, transparent 0 50%, var(--a) 0 75%, transparent 0);
   background-size: 22px 22px;
-  display: flex; align-items: center; justify-content: center; padding: 20px; overflow: hidden;
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+  --pad: clamp(12px, 3%, 28px);
+  padding: var(--pad) var(--pad) max(var(--pad), 36px); /* bottom: room for the size chip */
 }
 .stage[data-ground="light"] { --a: #D6DAD8; --b: #F3F4F4; }
 .stage[data-ground="dark"] { --a: #2A302E; --b: #1A1E1D; }
-@media (max-width: 880px) { .stage { height: min(46vh, 70vw); min-height: 200px; padding: 12px; } }
 .stage svg { width: 100%; height: 100%; display: block; }
 .stage .empty { color: var(--muted); font-size: 1rem; text-align: center; }
-.stagebar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-.stagebar .info { color: var(--muted); font-variant-numeric: tabular-nums; margin-right: auto; font-size: .9rem; }
+/* Output size, in the stage corner so its changing length never reflows the toolbar. */
+.info {
+  position: absolute; left: 8px; bottom: 8px; padding: 3px 8px; border-radius: 3px; pointer-events: none;
+  font-size: .82rem; font-variant-numeric: tabular-nums; color: var(--muted);
+  background: color-mix(in srgb, var(--panel) 88%, transparent);
+}
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.info:empty { display: none; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* Desktop: two columns at least one screen tall (body is a grid with min-height, so its row and
+   .wrap stretch). The stage takes the height the rows under it leave, never under 240px; the
+   panel's own length is ignored (contain: size), it stretches to the row and scrolls. A short
+   window simply scrolls the page. Kept after the base stage rules so it overrides them. */
+@media (min-width: 961px) {
+  html { height: 100%; }
+  body { min-height: 100%; display: grid; }
+  .wrap { width: 100%; grid-template-rows: auto 1fr; }
+  .main { grid-template-columns: minmax(0, 1fr) 340px; }
+  .stage-wrap { flex: 1 1 0; height: auto; min-height: 240px; }
+  .panel { contain: size; overflow-y: auto; overscroll-behavior: contain; scroll-padding-top: 56px; }
+  .panel-head { position: sticky; top: 0; z-index: 1; }
+}
+
+/* Deck: the everyday controls under the stage, each row named in a left gutter. */
+.deck {
+  display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 12px 14px; align-items: start;
+  padding-top: 12px; border-top: 1px solid var(--line);
+}
+.deck-label { font: 600 1.05rem/1 var(--head); color: var(--muted); padding-top: 10px; }
+.deck-text { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 14px; align-items: start; }
+.deck-opts { display: grid; gap: 8px; justify-items: start; }
+.deck-text .warn { grid-column: 1 / -1; }
+@media (max-width: 560px) {
+  .deck { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .deck-label { padding-top: 6px; }
+  .deck-text { grid-template-columns: minmax(0, 1fr); }
+  .deck-opts { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+  .actions { width: 100%; }
+  .actions .btn { flex: 1 1 auto; }
+}
 
 .btn {
   font: 600 .95rem/1 var(--ui); border-radius: 4px; padding: 11px 16px; cursor: pointer;
   border: 1px solid var(--line); background: var(--field); color: var(--ink);
 }
-.btn:hover { border-color: var(--muted); }
+@media (hover: hover) {
+  .btn:hover, label.tile:hover, .presets button:hover { border-color: var(--muted); }
+  .btn.primary:hover { filter: brightness(1.06); }
+}
 .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-.btn.primary:hover { filter: brightness(1.06); }
 .btn.small { padding: 7px 10px; font-size: .85rem; font-weight: 500; }
 :where(button, input, select, textarea, summary, label.tile):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.status { min-height: 1.3em; font-size: .9rem; color: var(--muted); }
+/* Always rendered: a live region must exist before its text changes, and a fixed line keeps the
+   deck from jumping when a message comes and goes. */
+.status { font-size: .9rem; line-height: 1.45; min-height: 1.45em; color: var(--muted); }
 .status.err { color: var(--accent); }
 .copybox { width: 100%; height: 120px; font: 12px/1.4 ui-monospace, monospace; background: var(--field); color: var(--ink); border: 1px solid var(--line); border-radius: 4px; }
 
 /* Panel */
 .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; min-width: 0; }
-.panel-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.panel-head {
+  display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--line);
+  background: var(--panel); border-radius: 6px 6px 0 0;
+}
 .panel-head span { font: 600 1.15rem/1 var(--head); }
 details { border-bottom: 1px solid var(--line); }
 details:last-child { border-bottom: 0; }
@@ -91,10 +141,12 @@ details[open] > summary::after { transform: rotate(-135deg); }
 .sub { font: 600 1rem/1 var(--head); margin-top: 6px; display: flex; align-items: center; gap: 10px; }
 .sub .switch { margin-left: auto; }
 fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: 12px; min-width: 0; }
+/* Slider row hosts add no box of their own: rows join the surrounding grid and its gap. */
+.rows { display: contents; }
 fieldset:disabled { opacity: .45; }
 
 textarea#text {
-  width: 100%; min-height: 64px; resize: vertical; font: 1.25rem/1.25 var(--display); letter-spacing: .02em;
+  width: 100%; min-height: 58px; resize: vertical; font: 1.3rem/1.2 var(--display); letter-spacing: .02em;
   padding: 10px 12px; border: 1px solid var(--line); border-radius: 4px; background: var(--field); color: var(--ink);
 }
 .warn { color: var(--accent); font-size: .88rem; }
@@ -125,27 +177,32 @@ input[type="color"] { width: 44px; height: 34px; padding: 0 2px; border: 1px sol
 .seg button[aria-pressed="true"] { background: var(--ink); color: var(--panel); }
 .inline { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: .92rem; }
 
-.fonts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
-label.tile {
-  border: 1px solid var(--line); border-radius: 4px; padding: 8px 10px; cursor: pointer; background: var(--field);
-  display: grid; gap: 2px; min-width: 0;
+/* Fonts and presets stay one row; on a narrow screen the row scrolls sideways instead of wrapping
+   into a ragged second row. */
+.fonts, .presets {
+  gap: 6px; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: thin;
+  padding: 4px; margin: -4px; /* the scroll box clips: leave room for the 2px+2px focus ring */
 }
-label.tile input { position: absolute; opacity: 0; pointer-events: none; }
-label.tile .sample { font-size: 1.35rem; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-label.tile .nm { font-size: .78rem; color: var(--muted); }
+.fonts { display: flex; }
+.fonts .add { flex: 0 0 118px; }
+#fonts { flex: 1 0 auto; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(92px, 1fr); gap: 6px; }
+.presets { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(80px, 1fr); }
+.fonts label, .presets > * { scroll-snap-align: start; }
+label.tile, .presets button { border: 1px solid var(--line); border-radius: 4px; background: var(--field); color: var(--ink); cursor: pointer; }
+label.tile { padding: 7px 10px; display: grid; gap: 2px; min-width: 0; position: relative; }
+label.tile input { position: absolute; opacity: 0; pointer-events: none; width: 1px; height: 1px; }
+label.tile .sample { font-size: 1.2rem; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+label.tile .nm { font-size: .78rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 label.tile:has(input:checked) { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
 label.tile:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
-.upload { font-size: .88rem; color: var(--muted); }
-.upload input { font: inherit; color: var(--ink); max-width: 100%; }
+/* The upload tile reads as an empty slot rather than a font. */
+label.tile.add { border-style: dashed; background: transparent; }
+label.tile.add .sample { color: var(--muted); font-size: 1.05rem; }
 
-.presets { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
 .presets button {
-  border: 1px solid var(--line); background: var(--field); color: var(--ink); border-radius: 4px; cursor: pointer;
   padding: 6px 4px 5px; display: grid; justify-items: center; gap: 3px; font: 500 .78rem/1.1 var(--ui);
 }
 .presets button svg { width: 100%; height: 26px; }
 .presets button svg path { fill: currentColor; }
-.presets button:hover { border-color: var(--muted); }
-@media (max-width: 420px) { .presets { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }

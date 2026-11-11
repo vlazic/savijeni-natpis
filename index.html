@@ -17,55 +17,68 @@
   </header>
 
   <div class="main">
-    <section class="stage-col" aria-label="Pregled">
-      <div class="stage" id="stage" data-ground="auto" role="img" aria-label="Pregled natpisa"></div>
-      <div class="stagebar">
+    <section class="work" aria-label="Natpis">
+      <div class="stage-wrap">
+        <div class="stage" id="stage" data-ground="auto" role="img" aria-label="Pregled natpisa"></div>
         <span class="info" id="info"></span>
+      </div>
+      <div class="toolbar">
         <div class="seg" role="group" aria-label="Podloga pregleda" id="ground">
           <button type="button" data-v="auto" aria-pressed="true">Tema</button>
           <button type="button" data-v="light" aria-pressed="false">Svetla</button>
           <button type="button" data-v="dark" aria-pressed="false">Tamna</button>
         </div>
-      </div>
-      <div class="stagebar">
-        <button class="btn primary" type="button" id="dlPng">Preuzmi PNG</button>
-        <button class="btn" type="button" id="dlSvg">Preuzmi SVG</button>
-        <button class="btn" type="button" id="copySvg">Kopiraj SVG kod</button>
+        <div class="actions">
+          <button class="btn primary" type="button" id="dlPng">Preuzmi PNG</button>
+          <button class="btn" type="button" id="dlSvg">Preuzmi SVG</button>
+          <button class="btn" type="button" id="copySvg">Kopiraj SVG kod</button>
+        </div>
       </div>
       <div class="status" id="status" aria-live="polite"></div>
       <textarea class="copybox" id="copybox" readonly hidden aria-label="SVG kod"></textarea>
-    </section>
 
-    <aside class="panel" aria-label="Podešavanja">
-      <div class="panel-head"><span>Podešavanja</span><button class="btn small" type="button" id="reset">Vrati početno</button></div>
-
-      <details open>
-        <summary>Tekst</summary>
-        <div class="sec">
-          <textarea id="text" rows="2" spellcheck="false" aria-label="Tekst natpisa"></textarea>
-          <div class="warn" id="missing" hidden></div>
-          <label class="check"><input type="checkbox" id="upper"> Sva velika slova</label>
-          <div class="fonts" id="fonts" role="radiogroup" aria-label="Font"></div>
-          <label class="upload">Svoj font (TTF, OTF ili WOFF):
-            <input type="file" id="fontFile" accept=".ttf,.otf,.woff,font/ttf,font/otf,font/woff">
-          </label>
-          <div id="rowsText"></div>
-          <div class="inline">Poravnanje redova
-            <div class="seg" role="group" aria-label="Poravnanje" id="align">
+      <div class="deck">
+        <label class="deck-label" for="text">Tekst</label>
+        <div class="deck-text">
+          <textarea id="text" rows="2" spellcheck="false"></textarea>
+          <div class="deck-opts">
+            <label class="check"><input type="checkbox" id="upper"> Sva velika slova</label>
+            <div class="seg" role="group" aria-label="Poravnanje redova" id="align">
               <button type="button" data-v="left" aria-pressed="false">Levo</button>
               <button type="button" data-v="center" aria-pressed="true">Centar</button>
               <button type="button" data-v="right" aria-pressed="false">Desno</button>
             </div>
           </div>
-          <label class="check"><input type="checkbox" id="kerning"> Kerning iz fonta</label>
+          <div class="warn" id="missing" hidden></div>
         </div>
-      </details>
+
+        <span class="deck-label" id="fontsLabel">Font</span>
+        <div class="fonts">
+          <label class="tile add">
+            <input type="file" id="fontFile" accept=".ttf,.otf,.woff,font/ttf,font/otf,font/woff">
+            <span class="sample">+ Svoj font</span><span class="nm">TTF, OTF, WOFF</span>
+          </label>
+          <div id="fonts" role="radiogroup" aria-labelledby="fontsLabel"></div>
+        </div>
+
+        <span class="deck-label" id="presetsLabel">Oblik</span>
+        <div class="presets" id="presets" role="group" aria-labelledby="presetsLabel"></div>
+      </div>
+    </section>
+
+    <aside class="panel" aria-label="Podešavanja">
+      <div class="panel-head"><span>Fino podešavanje</span><button class="btn small" type="button" id="reset">Vrati početno</button></div>
 
       <details open>
-        <summary>Oblik</summary>
+        <summary>Savijanje</summary>
+        <div class="sec"><div class="rows" id="rowsWarp"></div></div>
+      </details>
+
+      <details>
+        <summary>Razmak i širina slova</summary>
         <div class="sec">
-          <div class="presets" id="presets"></div>
-          <div id="rowsWarp"></div>
+          <div class="rows" id="rowsText"></div>
+          <label class="check"><input type="checkbox" id="kerning"> Kerning iz fonta</label>
         </div>
       </details>
 
@@ -77,7 +90,7 @@
           <div class="sub">Prelaz u drugu boju <label class="switch"><input type="checkbox" id="gradOn"> Uključi</label></div>
           <fieldset id="fsGrad">
             <div class="colorrow"><label for="fill2">Druga boja</label><input type="color" id="fill2"><input class="hex" id="fill2Hex" aria-label="Druga boja, hex" maxlength="7"></div>
-            <div id="rowsGrad"></div>
+            <div class="rows" id="rowsGrad"></div>
           </fieldset>
         </div>
       </details>
@@ -88,7 +101,7 @@
           <div class="sub">Obrub oko slova <label class="switch"><input type="checkbox" id="strokeOn"> Uključi</label></div>
           <fieldset id="fsStroke">
             <div class="colorrow"><label for="strokeColor">Boja</label><input type="color" id="strokeColor"><input class="hex" id="strokeColorHex" aria-label="Boja konture, hex" maxlength="7"></div>
-            <div id="rowsStroke"></div>
+            <div class="rows" id="rowsStroke"></div>
             <div class="inline">Uglovi
               <div class="seg" role="group" aria-label="Uglovi konture" id="strokeJoin">
                 <button type="button" data-v="round" aria-pressed="true">Zaobljeni</button>
@@ -111,12 +124,12 @@
           <div class="sub">Senka <label class="switch"><input type="checkbox" id="shadowOn"> Uključi</label></div>
           <fieldset id="fsShadow">
             <div class="colorrow"><label for="shadowColor">Boja</label><input type="color" id="shadowColor"><input class="hex" id="shadowColorHex" aria-label="Boja senke, hex" maxlength="7"></div>
-            <div id="rowsShadow"></div>
+            <div class="rows" id="rowsShadow"></div>
           </fieldset>
           <div class="sub">3D izvlačenje <label class="switch"><input type="checkbox" id="extrudeOn"> Uključi</label></div>
           <fieldset id="fsExtrude">
             <div class="colorrow"><label for="extrudeColor">Boja</label><input type="color" id="extrudeColor"><input class="hex" id="extrudeColorHex" aria-label="Boja 3D strane, hex" maxlength="7"></div>
-            <div id="rowsExtrude"></div>
+            <div class="rows" id="rowsExtrude"></div>
           </fieldset>
         </div>
       </details>
@@ -128,7 +141,7 @@
           <fieldset id="fsBg">
             <div class="colorrow"><label for="bgColor">Boja</label><input type="color" id="bgColor"><input class="hex" id="bgColorHex" aria-label="Boja pozadine, hex" maxlength="7"></div>
           </fieldset>
-          <div id="rowsExport"></div>
+          <div class="rows" id="rowsExport"></div>
         </div>
       </details>
     </aside>
